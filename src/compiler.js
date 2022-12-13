@@ -16,15 +16,16 @@ exports.compileToDescriptor = function (filename, source) {
     (this.template.isProduction
       ? hash(path.basename(filename) + source)
       : hash(filename + source));
-  source = descriptor.template.content;
   if (descriptor.template.lang === "pug") {
       source = pug.render(descriptor.template.content);
 
       // Fix #default="#default" and v-else="v-else"
       source = source.replace(/(\B#.*?|\bv-.*?)="\1"/g, "$1");
+
+      descriptor.template.content = source;
   }
   const template = descriptor.template
-    ? this.compileTemplate({filename, source})
+    ? this.compileTemplate(filename, descriptor.template)
     : undefined;
   const styles = descriptor.styles.map((style) =>
     this.compileStyle(filename, scopeId, style)
