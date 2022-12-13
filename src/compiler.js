@@ -15,6 +15,13 @@ exports.compileToDescriptor = function (filename, source) {
     (this.template.isProduction
       ? hash(path.basename(filename) + source)
       : hash(filename + source));
+  if (descriptor.template.lang === "pug") {
+      const pug = await tryAsync(() => import("pug"), "pug", "Pug template rendering")
+      source = pug.render(descriptor.template.content);
+
+      // Fix #default="#default" and v-else="v-else"
+      source = source.replace(/(\B#.*?|\bv-.*?)="\1"/g, "$1");
+  }
   const template = descriptor.template
     ? this.compileTemplate(filename, descriptor.template)
     : undefined;
